@@ -38,8 +38,30 @@ display(df_temp1)
 
 # COMMAND ----------
 
-df_select=df.select("region","country").groupBy(column("Region")).count().filter(column("Region") != 'Asia').where(column("count") > 100)
+from datetime import datetime
+from pyspark.sql.functions import col
+from pyspark.sql.functions import column
+df_select=df.select("region","country") \
+			.groupBy(col("Region")).count() \
+			.filter(column("Region") != 'Asia') \
+			.where(column("count") > 1) \
+			.withColumn(column("Curr_date"), datetime.now().strftime('%Y-%m-%d'))
 display(df_select)
+df_select.write.mode("append").saveAsTable("country_count")
+
+# COMMAND ----------
+
+from datetime import datetime
+from pyspark.sql.functions import *
+df_select = df.select("region", "country") \
+                .groupBy("region") \
+                .agg(count("*").alias("count")) \
+                .filter(col("region") != 'Asia') \
+                .where(col("count") > 1) \
+                 .withColumn("Curr_date", lit(datetime.now().strftime('%Y-%m-%d-%M:%S')))
+display(df_select)
+
+df_select.write.option("mergeSchema", "true").mode("overwrite").saveAsTable("country_count")
 
 # COMMAND ----------
 
@@ -48,3 +70,9 @@ from pyspark.sql.functions import *
 df_self=df.alias("df_self")
 df_join=df.join(df_self, df.OrderID == df_self.OrderID)
 display(df_join)
+
+# COMMAND ----------
+
+from pyspark.sql.functions import col, lit, current_date
+
+display(df.withColumn("Curr_date", lit(current_date())))
