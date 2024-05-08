@@ -10,4 +10,4 @@ df_select = df.select("region", "country") \
                  .withColumn("Curr_date", lit(datetime.now().strftime('%Y-%m-%d-%H:%M:%S')))
 display(df_select)
 
-df_select.write.option("mergeSchema", "true").mode("overwrite").saveAsTable("country_count")
+df_select.write.option("mergeSchema", "true").mode("append").saveAsTable("country_count")
